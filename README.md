@@ -21,5 +21,5 @@ $ ./study_opencv [NUMBER_OF_ANSWER]
 ```
 
 <!-- end of file {{{1
-vim:ft=markdown:et:nowrap:fdm=markdown
+vim:ft=markdown:et:nowrap:fdm=marker
 -->
