@@ -7,6 +7,7 @@
 static void tutorial(void);
 static void answer001(void);
 static void answer002(void);
+static void answer003(void);
 
 /** <!-- {{{1 --> @brief definition of OpenCV study function
  */
@@ -18,6 +19,7 @@ static const opencv_func_t FUNC_TABLE[] = {
     tutorial,
     answer001,
     answer002,
+    answer003,
 };
 
 /** <!-- {{{1 --> @brief OpenCV Tutorial
@@ -124,6 +126,37 @@ static void answer002(void)
         }
     }
     cv::imshow("Answer002", out);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+}
+
+/** <!-- {{{1 --> @brief Answer of Question 003
+ */
+static void answer003(void)
+{
+    // open
+    cv::Mat img = cv::imread(RESOURCE_DIR "imori.jpg", cv::IMREAD_COLOR);
+    if (img.empty()) {
+        std::cout << "image is empty." << std::endl;
+        return;
+    }
+
+    // Grayscale
+    const int32_t width = img.rows;
+    const int32_t height = img.cols;
+    cv::Mat out = cv::Mat::zeros(width, height, CV_8UC1);
+    int32_t x, y;
+    for (x = 0; x < width; x++) {
+        for (y = 0; y < height; y++) {
+            uint8_t b = img.at<cv::Vec3b>(y, x)[0];
+            uint8_t g = img.at<cv::Vec3b>(y, x)[1];
+            uint8_t r = img.at<cv::Vec3b>(y, x)[2];
+            uint8_t v = (uint8_t)(
+                0.2126 * (float)r + 0.7152 * (float)g + 0.0722 * (float)b);
+            out.at<uint8_t>(y, x) = (uint8_t)((v < 128) ? 0: 255);
+        }
+    }
+    cv::imshow("Answer003", out);
     cv::waitKey(0);
     cv::destroyAllWindows();
 }
