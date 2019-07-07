@@ -8,6 +8,7 @@ static void tutorial(void);
 static void answer001(void);
 static void answer002(void);
 static void answer003(void);
+static void answer004(void);
 
 /** <!-- {{{1 --> @brief definition of OpenCV study function
  */
@@ -20,6 +21,7 @@ static const opencv_func_t FUNC_TABLE[] = {
     answer001,
     answer002,
     answer003,
+    answer004,
 };
 
 /** <!-- {{{1 --> @brief OpenCV Tutorial
@@ -157,6 +159,79 @@ static void answer003(void)
         }
     }
     cv::imshow("Answer003", out);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+}
+
+/** <!-- {{{1 --> @brief Answer of Question 004
+ */
+static void answer004(void)
+{
+    // open
+    cv::Mat img = cv::imread(RESOURCE_DIR "imori.jpg", cv::IMREAD_COLOR);
+    if (img.empty()) {
+        std::cout << "image is empty." << std::endl;
+        return;
+    }
+
+    // Grayscale
+    const int32_t width = img.rows;
+    const int32_t height = img.cols;
+    cv::Mat out = cv::Mat::zeros(width, height, CV_8UC1);
+    int32_t x, y;
+    for (x = 0; x < width; x++) {
+        for (y = 0; y < height; y++) {
+            uint8_t b = img.at<cv::Vec3b>(y, x)[0];
+            uint8_t g = img.at<cv::Vec3b>(y, x)[1];
+            uint8_t r = img.at<cv::Vec3b>(y, x)[2];
+            out.at<uint8_t>(y, x) = (uint8_t)(
+                0.2126 * (float)r + 0.7152 * (float)g + 0.0722 * (float)b);
+        }
+    }
+
+    // Otsu's Binarization method
+    int32_t th = 0;
+    float max_sb = 0.0f;
+    for (int32_t t = 0; t < 255; t++) {
+        int32_t w0 = 0;
+        int32_t w1 = 0;
+        float m0 = 0.0f;
+        float m1 = 0.0f;
+
+        for (x = 0; x < width; x++) {
+            for (y = 0; y < height; y++) {
+                int32_t v = (int32_t)(out.at<uint8_t>(y, x));
+                if (v < t) {
+                    w0++;
+                    m0 += (float)v;
+                } else {
+                    w1++;
+                    m1 += (float)v;
+                }
+            }
+        }
+
+        m0 /= (float)w0;
+        m1 /= (float)w1;
+        float sb = (
+            ((float)w0 / (float)(width * height)) *
+            ((float)w1 / (float)(width * height)) *
+            (m0 - m1) * (m0 - m1));
+        if (sb > max_sb) {
+            max_sb = sb;
+            th = t;
+        }
+    }
+    std::cout << "threshold = " << th << std::endl;
+
+    // Binalization
+    for (x = 0; x < width; x++) {
+        for (y = 0; y < height; y++) {
+            uint8_t v = (uint8_t)out.at<uint8_t>(y, x);
+            out.at<uint8_t>(y, x) = (uint8_t)((v < th) ? 0: 255);
+        }
+    }
+    cv::imshow("Answer004", out);
     cv::waitKey(0);
     cv::destroyAllWindows();
 }
