@@ -9,6 +9,7 @@ static void answer001(void);
 static void answer002(void);
 static void answer003(void);
 static void answer004(void);
+static void answer005(void);
 
 /** <!-- {{{1 --> @brief definition of OpenCV study function
  */
@@ -22,6 +23,7 @@ static const opencv_func_t FUNC_TABLE[] = {
     answer002,
     answer003,
     answer004,
+    answer005,
 };
 
 /** <!-- {{{1 --> @brief OpenCV Tutorial
@@ -143,7 +145,7 @@ static void answer003(void)
         return;
     }
 
-    // Grayscale
+    // Binarization
     const int32_t width = img.rows;
     const int32_t height = img.cols;
     cv::Mat out = cv::Mat::zeros(width, height, CV_8UC1);
@@ -224,7 +226,7 @@ static void answer004(void)
     }
     std::cout << "threshold = " << th << std::endl;
 
-    // Binalization
+    // Binarization
     for (x = 0; x < width; x++) {
         for (y = 0; y < height; y++) {
             uint8_t v = (uint8_t)out.at<uint8_t>(y, x);
@@ -232,6 +234,81 @@ static void answer004(void)
         }
     }
     cv::imshow("Answer004", out);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+}
+
+/** <!-- {{{1 --> @brief Answer of Question 005
+ */
+static void answer005(void)
+{
+    // open
+    cv::Mat img = cv::imread(RESOURCE_DIR "imori.jpg", cv::IMREAD_COLOR);
+    if (img.empty()) {
+        std::cout << "image is empty." << std::endl;
+        return;
+    }
+
+    // RGB to HSV to RGB
+    const int32_t width = img.rows;
+    const int32_t height = img.cols;
+    cv::Mat out = cv::Mat::zeros(width, height, CV_8UC3);
+    int32_t x, y;
+    for (x = 0; x < width; x++) {
+        for (y = 0; y < height; y++) {
+            float b = (float)img.at<cv::Vec3b>(y, x)[0] / 255.0f;
+            float g = (float)img.at<cv::Vec3b>(y, x)[1] / 255.0f;
+            float r = (float)img.at<cv::Vec3b>(y, x)[2] / 255.0f;
+            float c_max = fmax(r, fmax(g, b));
+            float c_min = fmin(r, fmin(g, b));
+
+            // RGB to HSV
+            float h = 0.0f;
+            if (c_max == c_min) {
+                ;
+            } else if (c_min == b) {
+                h = 60.0f * (g - r) / (c_max - c_min) +  60.0f;
+            } else if (c_min == r) {
+                h = 60.0f * (b - g) / (c_max - c_min) + 180.0f;
+            } else if (c_min == g) {
+                h = 60.0f * (r - b) / (c_max - c_min) + 300.0f;
+            }
+            float v = c_max;
+            float s = c_max - c_min;
+
+            // invert Hue
+            h = fmod((h + 180.0f), 360);
+
+            // HSV to RGB
+            float cc = s;
+            float hh = h / 60.0f;
+            float xx = cc * (1.0f - fabs(fmod(hh, 2) - 1.0f));
+            r = g = b = (v - cc);
+            if (hh < 1.0f) {
+                r += cc;
+                g += xx;
+            } else if (hh < 2.0f) {
+                r += xx;
+                g += cc;
+            } else if (hh < 3.0f) {
+                g += cc;
+                b += xx;
+            } else if (hh < 4.0f) {
+                g += xx;
+                b += cc;
+            } else if (hh < 5.0f) {
+                r += xx;
+                b += cc;
+            } else if (hh < 6.0f) {
+                r += cc;
+                b += xx;
+            }
+            out.at<cv::Vec3b>(y, x)[0] = (uint8_t)(b * 255);
+            out.at<cv::Vec3b>(y, x)[1] = (uint8_t)(g * 255);
+            out.at<cv::Vec3b>(y, x)[2] = (uint8_t)(r * 255);
+        }
+    }
+    cv::imshow("Answer005", out);
     cv::waitKey(0);
     cv::destroyAllWindows();
 }
