@@ -10,6 +10,7 @@ static void answer002(void);
 static void answer003(void);
 static void answer004(void);
 static void answer005(void);
+static void answer006(void);
 
 /** <!-- {{{1 --> @brief definition of OpenCV study function
  */
@@ -24,6 +25,7 @@ static const opencv_func_t FUNC_TABLE[] = {
     answer003,
     answer004,
     answer005,
+    answer006,
 };
 
 /** <!-- {{{1 --> @brief OpenCV Tutorial
@@ -309,6 +311,34 @@ static void answer005(void)
         }
     }
     cv::imshow("Answer005", out);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+}
+
+/** <!-- {{{1 --> @brief Answer of Question 006
+ */
+static void answer006(void)
+{
+    cv::Mat img = cv::imread(RESOURCE_DIR "imori.jpg", cv::IMREAD_COLOR);
+    if (img.empty()) {
+        std::cout << "image is empty." << std::endl;
+        return;
+    }
+
+    const int32_t width = img.rows;
+    const int32_t height = img.cols;
+    cv::Mat out = cv::Mat::zeros(height, width, CV_8UC3);
+    int32_t x, y, c;
+    for (x = 0; x < width; x++) {
+        for (y = 0; y < height; y++) {
+            for (c = 0; c < 3; c++) {
+                uint8_t v = img.at<cv::Vec3b>(y, x)[c];
+                v = 32 + 64 * ((v >> 6) & 0x03);
+                out.at<cv::Vec3b>(y, x)[c] = v;
+            }
+        }
+    }
+    cv::imshow("Answer006", out);
     cv::waitKey(0);
     cv::destroyAllWindows();
 }
