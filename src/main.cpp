@@ -12,6 +12,7 @@ static void answer004(void);
 static void answer005(void);
 static void answer006(void);
 static void answer007(void);
+static void answer008(void);
 
 /** <!-- {{{1 --> @brief definition of OpenCV study function
  */
@@ -28,6 +29,7 @@ static const opencv_func_t FUNC_TABLE[] = {
     answer005,
     answer006,
     answer007,
+    answer008,
 };
 
 /** <!-- {{{1 --> @brief OpenCV Tutorial
@@ -345,7 +347,7 @@ static void answer006(void)
     cv::destroyAllWindows();
 }
 
-/** <!-- {{{1 --> @brief Answer of Question 7
+/** <!-- {{{1 --> @brief Answer of Question 007
  */
 static void answer007(void)
 {
@@ -379,6 +381,45 @@ static void answer007(void)
         }
     }
     cv::imshow("Answer007", out);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+}
+
+/** <!-- {{{1 --> @brief Answer of Question 008
+ */
+static void answer008(void)
+{
+    cv::Mat img = cv::imread(RESOURCE_DIR "imori.jpg", cv::IMREAD_COLOR);
+    if (img.empty()) {
+        std::cout << "image is empty." << std::endl;
+        return;
+    }
+
+    const int32_t width = img.rows;
+    const int32_t height = img.cols;
+    cv::Mat out = cv::Mat::zeros(height, width, CV_8UC3);
+    int32_t ix, iy, x, y, c;
+    const int32_t r = 8;
+    for (ix = 0; ix < width; ix+= r) {
+        for (iy = 0; iy < height; iy += r) {
+            for (c = 0; c < 3; c++) {
+                uint8_t v = 0;
+                uint8_t vmax = 0;
+                for (x = 0; x < r; x++) {
+                    for (y = 0; y < r; y++) {
+                        v = img.at<cv::Vec3b>(y + iy, x + ix)[c];
+                        vmax = (v > vmax) ? v: vmax;
+                    }
+                }
+                for (x = 0; x < r; x++) {
+                    for (y = 0; y < r; y++) {
+                        out.at<cv::Vec3b>(y + iy, x + ix)[c] = vmax;
+                    }
+                }
+            }
+        }
+    }
+    cv::imshow("Answer008", out);
     cv::waitKey(0);
     cv::destroyAllWindows();
 }
