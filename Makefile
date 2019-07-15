@@ -4,6 +4,7 @@ RESOURCE_DIR    := resource
 GITHUB_URL      := https://raw.githubusercontent.com/yoyoyo-yo/Gasyori100knock/master
 RESOURCES_URL   := \
   $(GITHUB_URL)/Tutorial/imori.jpg \
+  $(GITHUB_URL)/Question_01_10/imori_noise.jpg \
 
 .PHONY: setup
 

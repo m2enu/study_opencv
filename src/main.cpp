@@ -13,6 +13,7 @@ static void answer005(void);
 static void answer006(void);
 static void answer007(void);
 static void answer008(void);
+static void answer009(void);
 
 /** <!-- {{{1 --> @brief definition of OpenCV study function
  */
@@ -30,6 +31,7 @@ static const opencv_func_t FUNC_TABLE[] = {
     answer006,
     answer007,
     answer008,
+    answer009,
 };
 
 /** <!-- {{{1 --> @brief OpenCV Tutorial
@@ -420,6 +422,68 @@ static void answer008(void)
         }
     }
     cv::imshow("Answer008", out);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+}
+
+/** <!-- {{{1 --> @brief Answer of Question 009
+ */
+static void answer009(void)
+{
+    cv::Mat img = cv::imread(RESOURCE_DIR "imori_noise.jpg", cv::IMREAD_COLOR);
+    if (img.empty()) {
+        std::cout << "image is empty." << std::endl;
+        return;
+    }
+
+    // kernel
+    int32_t x, y, ix, iy, c;
+    const float sigma = 1.3f;
+    const int32_t k_size = 3;
+    const int32_t k_offset = -1;
+    float kernel[k_size][k_size];
+    float sum_kernel = 0.0f;
+    for (x = 0; x < k_size; x++) {
+        for (y = 0; y < k_size; y++) {
+            ix = x + k_offset;
+            iy = y + k_offset;
+            kernel[y][x] = (1.0f / sqrt(2.0f * M_PI) / sigma) * exp(
+                (float)((ix * ix) + (iy * iy)) / -2.0f / sigma / sigma);
+            sum_kernel += kernel[y][x];
+        }
+    }
+    for (x = 0; x < k_size; x++) {
+        for (y = 0; y < k_size; y++) {
+            kernel[y][x] /= sum_kernel;
+        }
+    }
+
+    // filtering
+    const int32_t width = img.rows;
+    const int32_t height = img.cols;
+    cv::Mat out = cv::Mat::zeros(height, width, CV_8UC3);
+    for (x = 0; x < width; x++) {
+        for (y = 0; y < height; y++) {
+            for (c = 0; c < 3; c++) {
+                float v = 0.0f;
+                for (ix = 0; ix < k_size; ix++) {
+                    for (iy = 0; iy < k_size; iy++) {
+                        int32_t ax = x + ix + k_offset;
+                        int32_t ay = y + iy + k_offset;
+                        if ((ax < 0) || (ax > width)) {
+                            continue;
+                        } else if ((ay < 0) || (ay > height)) {
+                            continue;
+                        }
+                        v += ((float)img.at<cv::Vec3b>(ay, ax)[c] * kernel[iy][ix]);
+                    }
+                }
+                out.at<cv::Vec3b>(y, x)[c] = v;
+            }
+        }
+    }
+
+    cv::imshow("Answer009", out);
     cv::waitKey(0);
     cv::destroyAllWindows();
 }

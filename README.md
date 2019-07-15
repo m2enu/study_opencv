@@ -20,6 +20,11 @@ $ make
 $ ./study_opencv [NUMBER_OF_ANSWER]
 ```
 
+# Links
+
+## Gaussian Filter
+- https://algorithm.joho.info/image-processing/gaussian-filter/
+
 <!-- end of file {{{1
 vim:ft=markdown:et:nowrap:fdm=marker
 -->
